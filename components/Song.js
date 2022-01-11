@@ -4,7 +4,8 @@ import { currentTrackIdState, isPlayingState } from "../atoms/songAtom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import useSpotify from "../hooks/useSpotify";
 import { findDevice } from "../hooks/findDevice";
-import playlistIdState from "../atoms/playlistAtom";
+
+import playlistIdState, {likedSongs} from "../atoms/playlistAtom";
 
 function Song({ order, track }) {
   const spotifyApi = useSpotify();
@@ -12,24 +13,35 @@ function Song({ order, track }) {
   const [currentTrackId, setCurrentTrackId] =
     useRecoilState(currentTrackIdState);
   const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState);
+   const [liked, setLiked] = useRecoilState(likedSongs);
   const date = new Date(track?.added_at);
   let month = date.getUTCMonth() + 1;
+  console.log(track);
   const trackDate =
     date.getUTCDate() + "-" + month + "-" + date.getUTCFullYear();
-  console.log(month);
+ 
   const playSong = async () => {
     const devices = await findDevice(spotifyApi);
-
+    
     if (!devices) return alert("Play a song on your device for verification");
     setCurrentTrackId(track.track.id);
     setIsPlaying(true);
 
-    spotifyApi.play({
+    if (liked) {
+       spotifyApi.play({
+       uris: [`${track.track.uri}`],
+     
+    });
+    }
+    else {
+ spotifyApi.play({
       context_uri: `spotify:playlist:${playlistId}`,
       offset: {
         uri: track.track.uri,
       },
     });
+    }
+   
   };
   return (
     <div

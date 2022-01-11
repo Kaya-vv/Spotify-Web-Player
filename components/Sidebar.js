@@ -12,7 +12,7 @@ import {
 import { signOut, useSession } from "next-auth/react";
 import useSpotify from "../hooks/useSpotify";
 import { useRecoilState, useRecoilValue } from "recoil";
-import playlistIdState, { contextPlaylist } from "../atoms/playlistAtom";
+import playlistIdState, { contextPlaylist, playlistState, likedSongs } from "../atoms/playlistAtom";
 import { findDevice } from "../hooks/findDevice";
 
 function Sidebar() {
@@ -21,6 +21,8 @@ function Sidebar() {
   const [context, setContext] = useRecoilState(contextPlaylist);
   const [playlists, setPlaylists] = useState([]);
   const [playlistId, setPlaylistId] = useRecoilState(playlistIdState);
+  const [liked, setLiked] = useRecoilState(likedSongs);
+    const [playlist, setPlaylist] = useRecoilState(playlistState);
 
   useEffect(() => {
     if (spotifyApi.getAccessToken()) {
@@ -40,6 +42,21 @@ function Sidebar() {
     });
     setContext(id);
   };
+
+  const handleLiked = () => {
+      
+        spotifyApi.getMySavedTracks({}).then(
+      function (data) {
+       
+      setPlaylist(data.body);   
+      setLiked(true);   
+      },
+      function (err) {
+        console.log("Something went wrong!", err);
+      }
+    );
+    
+  }
   const truncate = (str, n) => {
     return str?.length > n ? str.substr(0, n - 1) + "..." : str;
   };
@@ -66,14 +83,11 @@ function Sidebar() {
           <PlusCircleIcon className="h-5 w-5" />
           <p>Create Playlist</p>
         </button>
-        <button className="flex items-center space-x-2 hover:text-white">
+        <button  onClick={handleLiked} className="flex items-center space-x-2 hover:text-white">
           <HeartIcon className="h-5 w-5" />
           <p>Liked songs</p>
         </button>
-        <button className="flex items-center space-x-2 hover:text-white">
-          <RssIcon className="h-5 w-5" />
-          <p>Your episodes</p>
-        </button>
+   
 
         <hr className="border-t-[0.1px] border-gray-900" />
         {playlists.map((playlist, key) => (
@@ -88,7 +102,7 @@ function Sidebar() {
             </p>
             {playlist.id == context && (
               <p key={playlist.id + "playlist"}>
-                <VolumeUpIcon key={key} className="button" />
+                <VolumeUpIcon key={key} className="w-5 h-5" />
               </p>
             )}
           </div>

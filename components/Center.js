@@ -4,7 +4,7 @@ import { Fragment } from "react";
 import React, { useEffect, useState } from "react";
 import { shuffle } from "lodash";
 import { useRecoilState, useRecoilValue } from "recoil";
-import playlistIdState, { playlistState } from "../atoms/playlistAtom";
+import playlistIdState, { playlistState, likedSongs } from "../atoms/playlistAtom";
 import spotifyApi from "../lib/spotify";
 import useSpotify from "../hooks/useSpotify";
 import Songs from "./Songs";
@@ -25,6 +25,8 @@ function Center() {
   const [color, setColor] = useState(null);
   const playlistId = useRecoilValue(playlistIdState);
   const [playlist, setPlaylist] = useRecoilState(playlistState);
+   const [liked, setLiked] = useRecoilState(likedSongs);
+   const playlistImage = liked ? "https://i.imgur.com/YCjRpqq.png" : playlist?.images?.[0]?.url;
 
   function classNames(...classes) {
     return classes.filter(Boolean).join(" ");
@@ -34,6 +36,7 @@ function Center() {
   }, [playlistId]);
 
   useEffect(() => {
+    setLiked(false); 
     if (playlistId) {
       spotifyApi
         .getPlaylist(playlistId)
@@ -42,6 +45,7 @@ function Center() {
         })
         .catch((err) => console.log(err));
     }
+
   }, [spotifyApi, playlistId]);
 
   return (
@@ -92,13 +96,13 @@ function Center() {
       >
         <img
           className="h-44 w-44 shadow-2xl"
-          src={playlist?.images?.[0]?.url}
+          src={playlistImage}
           alt=""
         />
         <div>
           <p>PLAYLIST</p>
           <h1 className="text-2xl md:text-3xl xl:text-5xl font-bold">
-            {playlist?.name}
+            {playlist?.name ?? "Nummers die je leuk vindt"}
           </h1>
         </div>
       </section>

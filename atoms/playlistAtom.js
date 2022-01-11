@@ -15,4 +15,8 @@ export const contextPlaylist = atom({
   default: null,
 });
 
+export const likedSongs = atom({
+  key: "likedSongs",
+  default: null
+})
 export default playlistIdState;

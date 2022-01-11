@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useRecoilValue } from "recoil";
-import { playlistState } from "../atoms/playlistAtom";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { playlistState, likedSongs } from "../atoms/playlistAtom";
 import Song from "./Song";
 import {
   ClockIcon,
@@ -11,8 +11,11 @@ import {
 function Songs() {
   const playlist = useRecoilValue(playlistState);
   const [sortDate, setSortDate] = useState(false);
+  const [liked, setLiked] = useRecoilState(likedSongs);
 
-  const sortedData = [].concat(playlist?.tracks.items).sort((a, b) => {
+  const toShow = liked ? playlist?.items : playlist?.tracks?.items;
+  console.log(toShow);
+  const sortedData = [].concat(toShow).sort((a, b) => {
     if (a.added_at > b.added_at) {
       return -1;
     }
@@ -27,6 +30,7 @@ function Songs() {
       setSortDate(true);
     }
   };
+  
   return (
     <div>
       <div className="px-8 flex flex-col space-y-1">
@@ -62,7 +66,7 @@ function Songs() {
           ? sortedData.map((track, i) => (
               <Song key={i} track={track} order={i} />
             ))
-          : playlist?.tracks.items.map((track, i) => (
+          : toShow?.map((track, i) => (
               <Song key={i} track={track} order={i} />
             ))}
       </div>

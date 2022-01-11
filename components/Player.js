@@ -61,15 +61,7 @@ function Player() {
     });
   }, []);
   useEffect(async () => {
-    spotifyApi.getMySavedTracks({}).then(
-      function (data) {
-        console.log(data);
-        console.log("Done!");
-      },
-      function (err) {
-        console.log("Something went wrong!", err);
-      }
-    );
+
 
     const devices = await findDevice(spotifyApi);
     if (!devices)
